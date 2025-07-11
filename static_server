@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# This script starts a simple HTTP file server using Node.js.
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if Node.js is installed
+if ! command -v node &> /dev/null
+then
+    echo "Node.js is not installed. Please install it and try again."
+    exit 1
+fi
+
+# Get port argument
+port=${1:-3000}
+
+# Get directory argument
+directory=${2:-"."}
+
+# Start the HTTP server using Node.js
+node "$SCRIPT_DIR/.impl/static_server.ts" $port $directory

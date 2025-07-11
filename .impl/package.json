@@ -1,0 +1,16 @@
+{
+  "name": "impl",
+  "version": "0.0.0",
+  "description": "implementation of scripts in TypeScript/JavaScript",
+  "license": "MIT",
+  "private": true,
+  "author": "Josh Kennedy",
+  "type": "module",
+  "dependencies": {
+    "@hono/node-server": "^1.15.0",
+    "hono": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.12"
+  }
+}
