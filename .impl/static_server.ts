@@ -138,6 +138,33 @@ function formatFileSize(bytes: number): string {
   return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 }
 
+// Helper function to get content type based on file extension
+function getContentType(ext: string): string {
+  const contentTypes: { [key: string]: string } = {
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'bmp': 'image/bmp',
+    'webp': 'image/webp',
+    'ico': 'image/x-icon',
+    'svg': 'image/svg+xml',
+    'pdf': 'application/pdf',
+    'zip': 'application/zip',
+    'mp4': 'video/mp4',
+    'mp3': 'audio/mpeg',
+    'wav': 'audio/wav',
+    'avi': 'video/x-msvideo',
+    'mov': 'video/quicktime',
+    'woff': 'font/woff',
+    'woff2': 'font/woff2',
+    'ttf': 'font/ttf',
+    'eot': 'application/vnd.ms-fontobject'
+  };
+  
+  return contentTypes[ext] || 'application/octet-stream';
+}
+
 const app = new Hono();
 
 // Serve server assets (CSS, JS for directory listing)
@@ -225,9 +252,24 @@ app.get('/', (c) => {
 // Serve static files
 app.use('*', serveStatic({
   root: staticPath, 
-  getContent: async path => {
+  getContent: async (path, c) => {
     try {
-      return fs.readFileSync(path, "utf-8");
+      // Check if file is binary based on extension
+      const ext = path.toLowerCase().split('.').pop() || '';
+      const binaryExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'ico', 'svg', 'pdf', 'zip', 'mp4', 'mp3', 'wav', 'avi', 'mov', 'woff', 'woff2', 'ttf', 'eot'];
+      
+      if (binaryExtensions.includes(ext)) {
+        // Read as binary for images and other binary files
+        const buffer = fs.readFileSync(path);
+        return new Response(buffer, {
+          headers: {
+            'Content-Type': getContentType(ext)
+          }
+        });
+      } else {
+        // Read as text for text files
+        return fs.readFileSync(path, "utf-8");
+      }
     } catch (error) {
       // File not found, let it fall through to 404 handler
       return null;
