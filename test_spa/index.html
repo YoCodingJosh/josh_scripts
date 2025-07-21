@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 10px; text-decoration: none; color: #007acc; }
+        .content { padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>SPA Test Application</h1>
+    
+    <div class="nav">
+        <a href="/" onclick="navigate('/')">Home</a>
+        <a href="/about" onclick="navigate('/about')">About</a>
+        <a href="/contact" onclick="navigate('/contact')">Contact</a>
+        <a href="/nonexistent" onclick="navigate('/nonexistent')">Non-existent Route</a>
+    </div>
+    
+    <div id="content" class="content">
+        <h2>Home Page</h2>
+        <p>Welcome to the SPA test application. Click the links above to test client-side routing.</p>
+        <p>Current path: <span id="current-path">/</span></p>
+    </div>
+
+    <script>
+        function navigate(path) {
+            event.preventDefault();
+            history.pushState({}, '', path);
+            updateContent(path);
+        }
+
+        function updateContent(path) {
+            const content = document.getElementById('content');
+            const currentPath = document.getElementById('current-path');
+            currentPath.textContent = path;
+            
+            switch(path) {
+                case '/':
+                    content.innerHTML = `
+                        <h2>Home Page</h2>
+                        <p>Welcome to the SPA test application. Click the links above to test client-side routing.</p>
+                        <p>Current path: <span id="current-path">${path}</span></p>
+                    `;
+                    break;
+                case '/about':
+                    content.innerHTML = `
+                        <h2>About Page</h2>
+                        <p>This is the about page of our SPA test application.</p>
+                        <p>Current path: <span id="current-path">${path}</span></p>
+                    `;
+                    break;
+                case '/contact':
+                    content.innerHTML = `
+                        <h2>Contact Page</h2>
+                        <p>Contact us at test@example.com</p>
+                        <p>Current path: <span id="current-path">${path}</span></p>
+                    `;
+                    break;
+                default:
+                    content.innerHTML = `
+                        <h2>Page Not Found</h2>
+                        <p>The page you're looking for doesn't exist, but in SPA mode, you still get the main app!</p>
+                        <p>Current path: <span id="current-path">${path}</span></p>
+                    `;
+            }
+        }
+
+        // Handle browser back/forward buttons
+        window.addEventListener('popstate', () => {
+            updateContent(window.location.pathname);
+        });
+
+        // Initialize content based on current path
+        updateContent(window.location.pathname);
+    </script>
+</body>
+</html>

@@ -17,6 +17,7 @@ const scriptDirectory: string = path.resolve(path.dirname(process.argv[1]), '..'
 const args = process.argv.slice(2);
 const port: number = parseInt(args[0], 10) || 3000;
 const staticPath: string = args[1] || currentDirectory;
+const spaMode: boolean = args[2] === 'true';
 
 // Function to generate HTML directory listing
 function generateDirectoryListing(dirPath: string, files: string[], currentPath: string = ''): string {
@@ -295,8 +296,21 @@ app.use('*', async (c, next) => {
   await next();
 });
 
-// 404 handler - serve the 404.html page
+// 404 handler - serve the 404.html page or index.html for SPA mode
 app.notFound((c) => {
+  // In SPA mode, serve index.html for any route that doesn't match a static file
+  if (spaMode) {
+    try {
+      const indexPath = path.join(staticPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        const indexContent = fs.readFileSync(indexPath, 'utf-8');
+        return c.html(indexContent);
+      }
+    } catch (error) {
+      // Fall through to regular 404 handling
+    }
+  }
+  
   try {
     // Try to find 404.html in the same directory as this script or in the static path
     let html404Path = path.join(scriptDirectory, '.impl', '404.html');
@@ -314,6 +328,9 @@ app.notFound((c) => {
 
 console.log(`📡 Serving static files from: ${staticPath}`);
 console.log(`🌐 Server is running... http://localhost:${port}/`);
+if (spaMode) {
+  console.log(`🔄 SPA mode enabled - serving index.html for all routes`);
+}
 
 serve({
   fetch: app.fetch,

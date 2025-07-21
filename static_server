@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
 # This script starts a simple HTTP file server using Node.js.
+# Usage: ./static_server [options] [port] [directory]
+# Options:
+#   --spa                    Enable SPA mode (serve index.html for all routes)
+#   --port <port>           Set the port number (default: 3000)
+#   --dir <directory>       Set the directory to serve (default: current directory)
+#   --help                  Show this help message
+#
+# Examples:
+#   ./static_server --spa                    # Enable SPA mode on port 3000
+#   ./static_server --spa --port 8080       # Enable SPA mode on port 8080
+#   ./static_server --spa --dir ./build     # Enable SPA mode serving ./build directory
+#   ./static_server 3000 .                  # Backward compatible: port 3000, current directory
 
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -12,11 +24,56 @@ then
     exit 1
 fi
 
-# Get port argument
-port=${1:-3000}
+# Parse arguments
+port=3000
+directory="."
+spa_mode=false
 
-# Get directory argument
-directory=${2:-"."}
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --spa)
+      spa_mode=true
+      shift
+      ;;
+    --port)
+      port="$2"
+      shift 2
+      ;;
+    --dir|--directory)
+      directory="$2"
+      shift 2
+      ;;
+    --help|-h)
+      echo "Static HTTP File Server"
+      echo ""
+      echo "Usage: $0 [options] [port] [directory]"
+      echo ""
+      echo "Options:"
+      echo "  --spa                    Enable SPA mode (serve index.html for all routes)"
+      echo "  --port <port>           Set the port number (default: 3000)"
+      echo "  --dir <directory>       Set the directory to serve (default: current directory)"
+      echo "  --help, -h              Show this help message"
+      echo ""
+      echo "Examples:"
+      echo "  $0 --spa                    # Enable SPA mode on port 3000"
+      echo "  $0 --spa --port 8080       # Enable SPA mode on port 8080"
+      echo "  $0 --spa --dir ./build     # Enable SPA mode serving ./build directory"
+      echo "  $0 3000 .                  # Backward compatible: port 3000, current directory"
+      exit 0
+      ;;
+    *)
+      # If it's a number, treat it as port (for backward compatibility)
+      if [[ "$1" =~ ^[0-9]+$ ]]; then
+        port="$1"
+      else
+        # Otherwise treat it as directory (for backward compatibility)
+        directory="$1"
+      fi
+      shift
+      ;;
+  esac
+done
 
 # Start the HTTP server using Node.js
-node "$SCRIPT_DIR/.impl/static_server.ts" $port $directory
+node "$SCRIPT_DIR/.impl/static_server.ts" $port $directory $spa_mode
