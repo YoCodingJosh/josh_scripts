@@ -16,7 +16,7 @@ const scriptDirectory: string = path.resolve(path.dirname(process.argv[1]), '..'
 
 const args = process.argv.slice(2);
 const port: number = parseInt(args[0], 10) || 3000;
-const staticPath: string = args[1] || currentDirectory;
+const staticPath: string = path.resolve(args[1] || currentDirectory);
 const spaMode: boolean = args[2] === 'true';
 
 // Function to generate HTML directory listing
