@@ -9,6 +9,7 @@ import process from 'node:process';
 import fs from 'node:fs';
 // @ts-expect-error
 import path from 'node:path';
+import open from 'open';
 
 const currentDirectory: string = cwd();
 // Get the directory where this script is located - assume it's in the same folder as .impl/
@@ -335,4 +336,7 @@ if (spaMode) {
 serve({
   fetch: app.fetch,
   port,
+}, (info) => {
+  // TODO: make this a configurable option
+  open(`http://localhost:${port}/`, { wait: false })
 })
