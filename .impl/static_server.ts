@@ -1,19 +1,13 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/serve-static'
-// @ts-expect-error
-import { cwd } from 'node:process';
-// @ts-expect-error
-import process from 'node:process';
-// @ts-expect-error
 import fs from 'node:fs';
-// @ts-expect-error
 import path from 'node:path';
 import open from 'open';
 
-const currentDirectory: string = cwd();
+const currentDirectory: string = path.resolve('.');
 // Get the directory where this script is located - assume it's in the same folder as .impl/
-const scriptDirectory: string = path.resolve(path.dirname(process.argv[1]), '..');
+const scriptDirectory: string = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 
 const args = process.argv.slice(2);
 const port: number = parseInt(args[0], 10) || 3000;
